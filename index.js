@@ -80,26 +80,10 @@ app.get("/data", async (req, res) => {
   }
 });
 
-// API route to get countries by region
-app.get("/countries", async (req, res) => {
-  try {
-    const { region } = req.query;
-    if (!region) {
-      return res.status(400).send("Region is required");
-    }
-
-    const countries = await DataModel.distinct("country", { region });
-    res.json(countries);
-  } catch {
-    alert("Error fetching countries by region");
-    res.status(500).send("Error fetching countries by region");
-  }
-});
-
-// API route to get year-wise data for line chart
+// API route to get year-wise data for Intensity/Likelihood/Relevance over Years - line chart
 app.get("/line-data", async (req, res) => {
   try {
-    const { startYear, endYear, topics, region, country, metric } = req.query;
+    const { startYear, endYear, topics, region, country } = req.query;
 
     let matchStage = {};
 
@@ -116,35 +100,60 @@ app.get("/line-data", async (req, res) => {
     if (region) matchStage.region = region;
     if (country) matchStage.country = country;
 
-    const groupField =
-      metric === "intensity"
-        ? "intensity"
-        : metric === "likelihood"
-        ? "likelihood"
-        : "relevance";
-
-    const data = await DataModel.aggregate([
-      { $match: matchStage },
-      {
-        $group: {
-          _id: "$start_year",
-          averageValue: { $avg: `$${groupField}` },
+    const metrics = ["intensity", "likelihood", "relevance"];
+    const dataPromises = metrics.map((metric) =>
+      DataModel.aggregate([
+        { $match: matchStage },
+        {
+          $group: {
+            _id: "$start_year",
+            averageValue: { $avg: `$${metric}` },
+          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          year: "$_id",
-          averageValue: 1,
+        {
+          $project: {
+            _id: 0,
+            year: "$_id",
+            averageValue: 1,
+            metric: metric,
+          },
         },
-      },
-      { $sort: { year: 1 } }, // Sort by year
-    ]);
+        { $sort: { year: 1 } }, // Sort by year
+      ])
+    );
 
-    res.json(data);
+    const results = await Promise.all(dataPromises);
+
+    // Flatten results and format data for chart
+    const formattedData = metrics.reduce((acc, metric, index) => {
+      const metricData = results[index];
+      acc[metric] = metricData.map((item) => ({
+        year: item.year,
+        averageValue: item.averageValue,
+      }));
+      return acc;
+    }, {});
+
+    res.json(formattedData);
   } catch (err) {
     console.error("Error fetching data for line chart:", err);
     res.status(500).send("Error fetching data for line chart");
+  }
+});
+
+// API route to get countries by region - bar chart
+app.get("/countries", async (req, res) => {
+  try {
+    const { region } = req.query;
+    if (!region) {
+      return res.status(400).send("Region is required");
+    }
+
+    const countries = await DataModel.distinct("country", { region });
+    res.json(countries);
+  } catch {
+    alert("Error fetching countries by region");
+    res.status(500).send("Error fetching countries by region");
   }
 });
 

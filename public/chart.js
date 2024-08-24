@@ -51,20 +51,16 @@ async function fetchBarChartData(filters = {}) {
 }
 
 // Intensity/Likelihood/Relevance over Years - Line Chart
-async function fetchLineChartData(filters = {}, metric) {
+async function fetchLineChartData(filters = {}) {
   try {
-    const queryParams = new URLSearchParams({ ...filters, metric }).toString();
+    const queryParams = new URLSearchParams(filters).toString();
     const response = await fetch(`/line-data?${queryParams}`);
     const data = await response.json();
 
-    if (data.length === 0) {
+    if (!data || !data.intensity || !data.likelihood || !data.relevance) {
       alert("No data available for the selected filters.");
       return;
     }
-
-    // Process and extract the data for visualization
-    const labels = data.map((item) => item.year);
-    const values = data.map((item) => item.averageValue);
 
     const ctx = document.getElementById("lineChart").getContext("2d");
 
@@ -73,18 +69,46 @@ async function fetchLineChartData(filters = {}, metric) {
       chartInstance.destroy();
     }
 
+    // Create the line chart
     chartInstance = new Chart(ctx, {
       type: "line",
       data: {
-        labels: labels,
+        labels: Array.from(
+          new Set([
+            ...data.intensity.map((item) => item.year),
+            ...data.likelihood.map((item) => item.year),
+            ...data.relevance.map((item) => item.year),
+          ])
+        ),
         datasets: [
           {
-            label: `Average ${
-              metric.charAt(0).toUpperCase() + metric.slice(1)
-            } Over Time`,
-            data: values,
+            label: "Intensity",
+            data: data.intensity.map((item) => ({
+              x: item.year,
+              y: item.averageValue,
+            })),
             borderColor: "rgba(75, 192, 192, 1)",
             backgroundColor: "rgba(75, 192, 192, 0.2)",
+            fill: false,
+          },
+          {
+            label: "Likelihood",
+            data: data.likelihood.map((item) => ({
+              x: item.year,
+              y: item.averageValue,
+            })),
+            borderColor: "rgba(255, 159, 64, 1)",
+            backgroundColor: "rgba(255, 159, 64, 0.2)",
+            fill: false,
+          },
+          {
+            label: "Relevance",
+            data: data.relevance.map((item) => ({
+              x: item.year,
+              y: item.averageValue,
+            })),
+            borderColor: "rgba(153, 102, 255, 1)",
+            backgroundColor: "rgba(153, 102, 255, 0.2)",
             fill: false,
           },
         ],
@@ -93,6 +117,8 @@ async function fetchLineChartData(filters = {}, metric) {
         scales: {
           x: {
             title: { display: true, text: "Year" },
+            type: "linear",
+            position: "bottom",
           },
           y: {
             title: { display: true, text: "Value" },
@@ -179,8 +205,7 @@ document.getElementById("generateLineChart").addEventListener("click", () => {
     region: document.getElementById("regionFilter").value,
     country: document.getElementById("countryFilter").value,
   };
-  const metric = document.getElementById("metricFilter").value; // Metric for line chart
-  fetchLineChartData(filters, metric);
+  fetchLineChartData(filters);
 });
 
 // Fetch and populate filters initially
