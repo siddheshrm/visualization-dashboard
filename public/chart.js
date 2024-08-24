@@ -184,11 +184,28 @@ function populateSelect(id, options) {
   });
 }
 
+function validateYearRange(startYear, endYear) {
+  if (startYear && endYear && parseInt(startYear, 10) > parseInt(endYear, 10)) {
+    alert(
+      "Start Year cannot be greater than End Year. Please correct the values."
+    );
+    return false;
+  }
+  return true;
+}
+
 // Add event listener to the button to generate the bar chart
 document.getElementById("generateChart").addEventListener("click", () => {
+  const startYear = document.getElementById("startYearFilter").value;
+  const endYear = document.getElementById("endYearFilter").value;
+
+  if (!validateYearRange(startYear, endYear)) {
+    return;
+  }
+
   const filters = {
-    endYear: document.getElementById("endYearFilter").value,
-    startYear: document.getElementById("startYearFilter").value,
+    startYear,
+    endYear,
     topics: document.getElementById("topicsFilter").value,
     region: document.getElementById("regionFilter").value,
     country: document.getElementById("countryFilter").value,
@@ -198,9 +215,16 @@ document.getElementById("generateChart").addEventListener("click", () => {
 
 // Add event listener to the button to generate the line chart
 document.getElementById("generateLineChart").addEventListener("click", () => {
+  const startYear = document.getElementById("startYearFilter").value;
+  const endYear = document.getElementById("endYearFilter").value;
+
+  if (!validateYearRange(startYear, endYear)) {
+    return;
+  }
+
   const filters = {
-    endYear: document.getElementById("endYearFilter").value,
-    startYear: document.getElementById("startYearFilter").value,
+    startYear,
+    endYear,
     topics: document.getElementById("topicsFilter").value,
     region: document.getElementById("regionFilter").value,
     country: document.getElementById("countryFilter").value,
