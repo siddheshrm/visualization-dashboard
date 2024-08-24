@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container my-4">
+        <h1 class="text-center mb-4">Data Visualization Dashboard</h1>
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label for="startYearFilter">Start Year:</label>
+                <select id="startYearFilter" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+                <label for="endYearFilter">End Year:</label>
+                <select id="endYearFilter" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+                <label for="topicsFilter">Topic:</label>
+                <select id="topicsFilter" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+                <label for="regionFilter">Region:</label>
+                <select id="regionFilter" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+                <label for="countryFilter">Country:</label>
+                <select id="countryFilter" class="form-select"></select>
+            </div>
+        </div>
+        <div class="text-center mb-4">
+            <button id="generateChart" class="btn btn-primary">Generate Chart</button>
+        </div>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="chart.js"></script>
+</body>
+
+</html>
