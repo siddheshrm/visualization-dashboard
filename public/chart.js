@@ -7,7 +7,7 @@ async function fetchData(filters = {}) {
     const data = await response.json();
 
     if (data.length === 0) {
-      console.error("No data available for the selected filters.");
+      alert("No data available for the selected filters.");
       return;
     }
 
@@ -55,7 +55,7 @@ async function populateFilters() {
     const filters = await response.json();
 
     if (!filters) {
-      console.error("No filter data received.");
+      alert("No filter data available.");
       return;
     }
 
@@ -85,8 +85,8 @@ async function populateCountryDropdown(region) {
     const response = await fetch(`/countries?region=${region}`);
     const countries = await response.json();
     populateSelect("countryFilter", countries);
-  } catch (error) {
-    console.error("Failed to fetch countries:", error);
+  } catch {
+    alert("Failed to fetch countries");
   }
 }
 

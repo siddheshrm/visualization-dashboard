@@ -1,4 +1,3 @@
-// Existing imports
 const express = require("express");
 const mongoose = require("mongoose");
 const DataModel = require("./model");
@@ -31,8 +30,8 @@ app.get("/filters", async (req, res) => {
     filters.relevance = await DataModel.distinct("relevance");
 
     res.json(filters);
-  } catch (err) {
-    console.error("Error fetching filter options:", err);
+  } catch {
+    alert("Error fetching filter options");
     res.status(500).send("Error fetching filter options");
   }
 });
@@ -44,8 +43,15 @@ app.get("/data", async (req, res) => {
 
     let matchStage = {};
 
-    if (startYear) matchStage.start_year = parseInt(startYear, 10);
-    if (endYear) matchStage.end_year = parseInt(endYear, 10);
+    if (startYear && endYear) {
+      matchStage.start_year = { $gte: parseInt(startYear, 10) };
+      matchStage.end_year = { $lte: parseInt(endYear, 10) };
+    } else if (startYear) {
+      matchStage.start_year = { $gte: parseInt(startYear, 10) };
+    } else if (endYear) {
+      matchStage.end_year = { $lte: parseInt(endYear, 10) };
+    }
+
     if (topics) matchStage.topic = topics;
     if (region) matchStage.region = region;
     if (country) matchStage.country = country;
@@ -84,8 +90,8 @@ app.get("/countries", async (req, res) => {
 
     const countries = await DataModel.distinct("country", { region });
     res.json(countries);
-  } catch (err) {
-    console.error("Error fetching countries by region:", err);
+  } catch {
+    alert("Error fetching countries by region");
     res.status(500).send("Error fetching countries by region");
   }
 });
