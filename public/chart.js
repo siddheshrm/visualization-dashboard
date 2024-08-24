@@ -1,6 +1,7 @@
 let chartInstance = null;
 
-async function fetchData(filters = {}) {
+// Average Intensity per Topic - Bar Chart
+async function fetchBarChartData(filters = {}) {
   try {
     const queryParams = new URLSearchParams(filters).toString();
     const response = await fetch(`/data?${queryParams}`);
@@ -28,7 +29,7 @@ async function fetchData(filters = {}) {
         labels: labels,
         datasets: [
           {
-            label: "Average Intensity by Sector",
+            label: "Average Intensity by Topic",
             data: values,
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             borderColor: "rgba(75, 192, 192, 1)",
@@ -39,6 +40,62 @@ async function fetchData(filters = {}) {
       options: {
         scales: {
           y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+}
+
+// Intensity/Likelihood/Relevance over Years - Line Chart
+async function fetchLineChartData(filters = {}, metric) {
+  try {
+    const queryParams = new URLSearchParams({ ...filters, metric }).toString();
+    const response = await fetch(`/line-data?${queryParams}`);
+    const data = await response.json();
+
+    if (data.length === 0) {
+      alert("No data available for the selected filters.");
+      return;
+    }
+
+    // Process and extract the data for visualization
+    const labels = data.map((item) => item.year);
+    const values = data.map((item) => item.averageValue);
+
+    const ctx = document.getElementById("lineChart").getContext("2d");
+
+    // Clear the previous chart instance if it exists
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: `Average ${
+              metric.charAt(0).toUpperCase() + metric.slice(1)
+            } Over Time`,
+            data: values,
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          x: {
+            title: { display: true, text: "Year" },
+          },
+          y: {
+            title: { display: true, text: "Value" },
             beginAtZero: true,
           },
         },
@@ -101,7 +158,7 @@ function populateSelect(id, options) {
   });
 }
 
-// Add event listener to the button to generate the chart
+// Add event listener to the button to generate the bar chart
 document.getElementById("generateChart").addEventListener("click", () => {
   const filters = {
     endYear: document.getElementById("endYearFilter").value,
@@ -110,7 +167,20 @@ document.getElementById("generateChart").addEventListener("click", () => {
     region: document.getElementById("regionFilter").value,
     country: document.getElementById("countryFilter").value,
   };
-  fetchData(filters);
+  fetchBarChartData(filters);
+});
+
+// Add event listener to the button to generate the line chart
+document.getElementById("generateLineChart").addEventListener("click", () => {
+  const filters = {
+    endYear: document.getElementById("endYearFilter").value,
+    startYear: document.getElementById("startYearFilter").value,
+    topics: document.getElementById("topicsFilter").value,
+    region: document.getElementById("regionFilter").value,
+    country: document.getElementById("countryFilter").value,
+  };
+  const metric = document.getElementById("metricFilter").value; // Metric for line chart
+  fetchLineChartData(filters, metric);
 });
 
 // Fetch and populate filters initially

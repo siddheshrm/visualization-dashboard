@@ -96,6 +96,58 @@ app.get("/countries", async (req, res) => {
   }
 });
 
+// API route to get year-wise data for line chart
+app.get("/line-data", async (req, res) => {
+  try {
+    const { startYear, endYear, topics, region, country, metric } = req.query;
+
+    let matchStage = {};
+
+    if (startYear && endYear) {
+      matchStage.start_year = { $gte: parseInt(startYear, 10) };
+      matchStage.end_year = { $lte: parseInt(endYear, 10) };
+    } else if (startYear) {
+      matchStage.start_year = { $gte: parseInt(startYear, 10) };
+    } else if (endYear) {
+      matchStage.end_year = { $lte: parseInt(endYear, 10) };
+    }
+
+    if (topics) matchStage.topic = topics;
+    if (region) matchStage.region = region;
+    if (country) matchStage.country = country;
+
+    const groupField =
+      metric === "intensity"
+        ? "intensity"
+        : metric === "likelihood"
+        ? "likelihood"
+        : "relevance";
+
+    const data = await DataModel.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: "$start_year",
+          averageValue: { $avg: `$${groupField}` },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          year: "$_id",
+          averageValue: 1,
+        },
+      },
+      { $sort: { year: 1 } }, // Sort by year
+    ]);
+
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching data for line chart:", err);
+    res.status(500).send("Error fetching data for line chart");
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

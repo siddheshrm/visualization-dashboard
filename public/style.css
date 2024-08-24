@@ -1,4 +1,4 @@
-/* General body styles */
+General body styles
 body {
   font-family: Arial, sans-serif;
   background-color: #f8f9fa;
@@ -57,7 +57,7 @@ body {
 }
 
 /* Chart container styles */
-#myChart {
+#myChart, #lineChart {
   max-height: 400px;
 }
 
