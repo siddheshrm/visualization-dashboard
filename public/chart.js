@@ -132,6 +132,69 @@ async function fetchLineChartData(filters = {}) {
   }
 }
 
+// Fetch and display Sector-Topic pie chart
+async function fetchPieChart(filters = {}) {
+  try {
+    const queryParams = new URLSearchParams(filters).toString();
+    const response = await fetch(`/sector-topic-data?${queryParams}`);
+    const data = await response.json();
+
+    if (data.length === 0) {
+      alert("No data available for the selected filters.");
+      return;
+    }
+
+    const labels = data.map((item) => item.name || "Unknown");
+    const values = data.map((item) => item.count);
+
+    const ctx = document.getElementById("pieChart").getContext("2d");
+
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Proportion",
+            data: values,
+            backgroundColor: [
+              "rgba(75, 192, 192, 0.2)",
+              "rgba(255, 159, 64, 0.2)",
+              "rgba(153, 102, 255, 0.2)",
+              "rgba(255, 205, 86, 0.2)",
+              "rgba(54, 162, 235, 0.2)",
+              "rgba(201, 203, 207, 0.2)",
+            ],
+            borderColor: [
+              "rgba(75, 192, 192, 1)",
+              "rgba(255, 159, 64, 1)",
+              "rgba(153, 102, 255, 1)",
+              "rgba(255, 205, 86, 1)",
+              "rgba(54, 162, 235, 1)",
+              "rgba(201, 203, 207, 1)",
+            ],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+}
+
 async function populateFilters() {
   try {
     const response = await fetch("/filters");
@@ -144,9 +207,10 @@ async function populateFilters() {
 
     populateSelect("endYearFilter", filters.endYear);
     populateSelect("startYearFilter", filters.startYear);
-    populateSelect("topicsFilter", filters.topics);
+    populateSelect("topicFilter", filters.topic);
     populateSelect("regionFilter", filters.region);
     populateSelect("countryFilter", filters.country);
+    populateSelect("sectorFilter", filters.sector);
 
     document
       .getElementById("regionFilter")
@@ -206,7 +270,7 @@ document.getElementById("generateChart").addEventListener("click", () => {
   const filters = {
     startYear,
     endYear,
-    topics: document.getElementById("topicsFilter").value,
+    topic: document.getElementById("topicFilter").value,
     region: document.getElementById("regionFilter").value,
     country: document.getElementById("countryFilter").value,
   };
@@ -225,11 +289,19 @@ document.getElementById("generateLineChart").addEventListener("click", () => {
   const filters = {
     startYear,
     endYear,
-    topics: document.getElementById("topicsFilter").value,
+    topic: document.getElementById("topicFilter").value,
     region: document.getElementById("regionFilter").value,
     country: document.getElementById("countryFilter").value,
   };
   fetchLineChartData(filters);
+});
+
+// Event listener for pie chart
+document.getElementById("generatePieChart").addEventListener("click", () => {
+  const region = document.getElementById("regionFilter").value;
+  const type = document.getElementById("filterType").value;
+  const sector = document.getElementById("sectorFilter").value;
+  fetchPieChart({ region, type, sector });
 });
 
 // Fetch and populate filters initially

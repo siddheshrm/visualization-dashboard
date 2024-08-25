@@ -21,7 +21,7 @@ app.get("/filters", async (req, res) => {
     const filters = {};
     filters.startYear = await DataModel.distinct("start_year");
     filters.endYear = await DataModel.distinct("end_year");
-    filters.topics = await DataModel.distinct("topic");
+    filters.topic = await DataModel.distinct("topic");
     filters.sector = await DataModel.distinct("sector");
     filters.region = await DataModel.distinct("region");
     filters.country = await DataModel.distinct("country");
@@ -39,7 +39,7 @@ app.get("/filters", async (req, res) => {
 // API route to get distinct values for filter options
 app.get("/data", async (req, res) => {
   try {
-    const { startYear, endYear, topics, region, country } = req.query;
+    const { startYear, endYear, topic, region, country } = req.query;
 
     let matchStage = {};
 
@@ -52,7 +52,7 @@ app.get("/data", async (req, res) => {
       matchStage.end_year = { $lte: parseInt(endYear, 10) };
     }
 
-    if (topics) matchStage.topic = topics;
+    if (topic) matchStage.topic = topic;
     if (region) matchStage.region = region;
     if (country) matchStage.country = country;
 
@@ -83,7 +83,7 @@ app.get("/data", async (req, res) => {
 // API route to get year-wise data for Intensity/Likelihood/Relevance over Years - line chart
 app.get("/line-data", async (req, res) => {
   try {
-    const { startYear, endYear, topics, region, country } = req.query;
+    const { startYear, endYear, topic, region, country } = req.query;
 
     let matchStage = {};
 
@@ -96,7 +96,7 @@ app.get("/line-data", async (req, res) => {
       matchStage.end_year = { $lte: parseInt(endYear, 10) };
     }
 
-    if (topics) matchStage.topic = topics;
+    if (topic) matchStage.topic = topic;
     if (region) matchStage.region = region;
     if (country) matchStage.country = country;
 
@@ -138,6 +138,47 @@ app.get("/line-data", async (req, res) => {
   } catch (err) {
     console.error("Error fetching data for line chart:", err);
     res.status(500).send("Error fetching data for line chart");
+  }
+});
+
+// API route to get region-wise topic and sector proportion data for pie chart
+app.get("/sector-topic-data", async (req, res) => {
+  try {
+    const { sector, region, type } = req.query;
+    let matchStage = {};
+
+    if (region) {
+      matchStage.region = region;
+    }
+
+    if (sector) {
+      matchStage.sector = sector;
+    }
+
+    const groupByField = type === "sector" ? "$sector" : "$topic";
+
+    const data = await DataModel.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: groupByField,
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          count: 1,
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching data for pie chart:", err);
+    res.status(500).send("Error fetching data for pie chart");
   }
 });
 

@@ -13,6 +13,7 @@
     <div class="container">
         <h1>Data Visualization Dashboard</h1>
 
+        <!-- Filters -->
         <div class="row">
             <div class="filter-group">
                 <label for="startYearFilter">Start Year</label>
@@ -23,8 +24,12 @@
                 <select id="endYearFilter" class="form-select"></select>
             </div>
             <div class="filter-group">
-                <label for="topicsFilter">Topic</label>
-                <select id="topicsFilter" class="form-select"></select>
+                <label for="sectorFilter">Sector</label>
+                <select id="sectorFilter" class="form-select"></select>
+            </div>
+            <div class="filter-group">
+                <label for="topicFilter">Topic</label>
+                <select id="topicFilter" class="form-select"></select>
             </div>
             <div class="filter-group">
                 <label for="regionFilter">Region</label>
@@ -34,18 +39,29 @@
                 <label for="countryFilter">Country</label>
                 <select id="countryFilter" class="form-select"></select>
             </div>
+            <div class="filter-group">
+                <label for="filterType">Select</label>
+                <select id="filterType" class="form-select">
+                    <option value="sector">Sector</option>
+                    <option value="topic">Topic</option>
+                </select>
+            </div>
         </div>
 
         <!-- Buttons -->
         <div>
-            <button id="generateChart" class="btn btn-primary">Average Intensity Per Topic Bar Chart</button>
-            <button id="generateLineChart" class="btn btn-secondary">Intensity/Likelihood/Relevance Line Chart</button>
+            <button id="generateChart" class="btn btn-primary">Generate Average Intensity Per Topic Bar Chart</button>
+            <button id="generateLineChart" class="btn btn-secondary">Generate Intensity/Likelihood/Relevance Line
+                Chart</button>
+            <button id="generatePieChart" class="btn btn-secondary">Generate Region-wise Sector/Topic Distribution Pie
+                Chart</button>
         </div>
 
         <!-- Charts -->
         <div>
             <canvas id="myChart"></canvas>
             <canvas id="lineChart"></canvas>
+            <canvas id="pieChart"></canvas>
         </div>
     </div>
 
