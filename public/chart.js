@@ -1,6 +1,7 @@
 let barChartInstance = null;
 let lineChartInstance = null;
 let pieChartInstance = null;
+let barPestleChartInstance = null;
 
 let startYear = null;
 let endYear = null;
@@ -196,6 +197,96 @@ async function fetchPieChart(filters = {}) {
   }
 }
 
+// Average intensity and impact by PESTLE factor - Bar Chart
+async function fetchPestleBarData(filters = {}) {
+  try {
+    const queryParams = new URLSearchParams(filters).toString();
+    const response = await fetch(
+      `/pestle-intensity-impact-data?${queryParams}`
+    );
+    const data = await response.json();
+
+    if (data.length === 0) {
+      alert("No PESTLE data available for the selected filters.");
+      return;
+    }
+
+    const labels = data.map((item) => item.pestle || "Unknown");
+    const intensityValues = data.map((item) => item.averageIntensity);
+    const impactValues = data.map((item) => item.averageImpact);
+    const likelihoodValues = data.map((item) => item.averageLikelihood);
+    const relevanceValues = data.map((item) => item.averageRelevance);
+
+    const ctx = document.getElementById("barChartPestle").getContext("2d");
+
+    if (barPestleChartInstance) {
+      barPestleChartInstance.destroy();
+    }
+
+    barPestleChartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Average Intensity",
+            data: intensityValues,
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+          },
+          {
+            label: "Average Impact",
+            data: impactValues,
+            backgroundColor: "rgba(255, 159, 64, 0.2)",
+            borderColor: "rgba(255, 159, 64, 1)",
+            borderWidth: 1,
+          },
+          {
+            label: "Average Likelihood",
+            data: likelihoodValues,
+            backgroundColor: "rgba(153, 102, 255, 0.2)",
+            borderColor: "rgba(153, 102, 255, 1)",
+            borderWidth: 1,
+          },
+          {
+            label: "Average Relevance",
+            data: relevanceValues,
+            backgroundColor: "rgba(54, 162, 235, 0.2)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "PESTLE Factor" },
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Average Intensity, Impact, Likelihood and Relevance",
+            },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Failed to fetch PESTLE intensity, impact, likelihood and relevance data:",
+      error
+    );
+  }
+}
+
 // Populate dropdowns and handle region-based country filtering
 async function populateFilters() {
   try {
@@ -214,6 +305,8 @@ async function populateFilters() {
     populateSelect("regionFilter", filters.region);
     populateSelect("regionFilterPie", filters.region);
     populateSelect("countryFilter", filters.country);
+    populateSelect("regionFilterPestle", filters.region);
+    populateSelect("countryFilterPestle", filters.country);
 
     const startYearNumbers = filters.startYear
       .map((year) => parseInt(year, 10))
@@ -234,11 +327,17 @@ async function populateFilters() {
       document.getElementById("endYearFilterLine").value = endYear;
     }
 
-    // document
-    //   .getElementById("regionFilter")
-    //   .addEventListener("change", async function () {
-    //     await populateCountryDropdown(this.value);
-    //   });
+    document
+      .getElementById("regionFilter")
+      .addEventListener("change", async function () {
+        await populateCountryDropdown(this.value);
+      });
+
+    document
+      .getElementById("regionFilterPestle")
+      .addEventListener("change", async function () {
+        await populateCountryDropdown(this.value);
+      });
   } catch (error) {
     console.error("Failed to fetch filter options:", error);
   }
@@ -250,6 +349,7 @@ async function populateCountryDropdown(region) {
     const response = await fetch(`/countries?region=${region}`);
     const countries = await response.json();
     populateSelect("countryFilter", countries);
+    populateSelect("countryFilterPestle", countries);
   } catch {
     alert("Failed to fetch countries");
   }
@@ -327,6 +427,17 @@ document.getElementById("generatePieChart").addEventListener("click", () => {
   fetchPieChart({ region, type });
 });
 
+// Event listener for Bar chart - PESTLE
+document
+  .getElementById("generateBarChartPestle")
+  .addEventListener("click", () => {
+    const filters = {
+      region: document.getElementById("regionFilterPestle").value,
+      country: document.getElementById("countryFilterPestle").value,
+    };
+    fetchPestleBarData(filters);
+  });
+
 // Fetch and populate filters initially
 populateFilters();
 
@@ -339,4 +450,5 @@ populateFilters().then(() => {
     console.error("startYear or endYear is not defined.");
   }
   fetchPieChart();
+  fetchPestleBarData();
 });

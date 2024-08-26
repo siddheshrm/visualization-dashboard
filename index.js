@@ -178,6 +178,51 @@ app.get("/pie-data", async (req, res) => {
   }
 });
 
+// API route - Average intensity and impact by PESTLE factor - Bar Chart
+app.get("/pestle-intensity-impact-data", async (req, res) => {
+  try {
+    const { region, country } = req.query;
+    let matchStage = {};
+
+    if (region) {
+      matchStage.region = region;
+    }
+
+    if (country) {
+      matchStage.country = country;
+    }
+
+    const pestleData = await DataModel.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: "$pestle",
+          averageIntensity: { $avg: "$intensity" },
+          averageImpact: { $avg: "$impact" },
+          averageLikelihood: { $avg: "$likelihood" },
+          averageRelevance: { $avg: "$relevance" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          pestle: "$_id",
+          averageIntensity: 1,
+          averageImpact: 1,
+          averageLikelihood: 1,
+          averageRelevance: 1,
+        },
+      },
+      { $sort: { averageIntensity: -1 } },
+    ]);
+
+    res.json(pestleData);
+  } catch (err) {
+    console.error("Error fetching PESTLE intensity, impact, intensity and relevance data:", err);
+    res.status(500).send("Error fetching PESTLE intensity, impact, intensity and relevance data");
+  }
+});
+
 // API route to get countries by region
 app.get("/countries", async (req, res) => {
   try {

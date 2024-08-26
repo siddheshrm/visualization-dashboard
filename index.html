@@ -15,7 +15,7 @@
 
         <!-- Bar Chart Section -->
         <section id="bar-chart-section">
-            <h2>Average Intensity Per Topic</h2>
+            <h2>Average Intensity by Topic</h2>
             <div class="row">
                 <div class="filter-group">
                     <label for="startYearFilterBar">Start Year</label>
@@ -86,6 +86,28 @@
             </div>
             <div>
                 <canvas id="pieChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Bar Chart Section -->
+        <section id="bar-chart-section-pestle">
+            <h2>Average Intensity, Impact, Likelihood, and Relevance by PESTLE</h2>
+            <div class="row">
+                <div class="filter-group">
+                    <label for="regionFilterPestle">Region</label>
+                    <select id="regionFilterPestle" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="countryFilterPestle">Country</label>
+                    <select id="countryFilterPestle" class="form-select"></select>
+                </div>
+            </div>
+            <div>
+                <button id="generateBarChartPestle" class="btn">Generate Bar
+                    Chart</button>
+            </div>
+            <div>
+                <canvas id="barChartPestle"></canvas>
             </div>
         </section>
     </div>
