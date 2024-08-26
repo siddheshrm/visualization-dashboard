@@ -1,4 +1,6 @@
-let chartInstance = null;
+let barChartInstance = null;
+let lineChartInstance = null;
+let pieChartInstance = null;
 
 // Average Intensity Per Topic - Bar Chart
 async function fetchBarChartData(filters = {}) {
@@ -17,11 +19,11 @@ async function fetchBarChartData(filters = {}) {
 
     const ctx = document.getElementById("barChart").getContext("2d");
 
-    if (chartInstance) {
-      chartInstance.destroy();
+    if (barChartInstance) {
+      barChartInstance.destroy();
     }
 
-    chartInstance = new Chart(ctx, {
+    barChartInstance = new Chart(ctx, {
       type: "bar",
       data: {
         labels: labels,
@@ -62,11 +64,11 @@ async function fetchLineChartData(filters = {}) {
 
     const ctx = document.getElementById("lineChart").getContext("2d");
 
-    if (chartInstance) {
-      chartInstance.destroy();
+    if (lineChartInstance) {
+      lineChartInstance.destroy();
     }
 
-    chartInstance = new Chart(ctx, {
+    lineChartInstance = new Chart(ctx, {
       type: "line",
       data: {
         labels: Array.from(
@@ -145,11 +147,11 @@ async function fetchPieChart(filters = {}) {
 
     const ctx = document.getElementById("pieChart").getContext("2d");
 
-    if (chartInstance) {
-      chartInstance.destroy();
+    if (pieChartInstance) {
+      pieChartInstance.destroy();
     }
 
-    chartInstance = new Chart(ctx, {
+    pieChartInstance = new Chart(ctx, {
       type: "pie",
       data: {
         labels: labels,
@@ -300,3 +302,10 @@ document.getElementById("generatePieChart").addEventListener("click", () => {
 
 // Fetch and populate filters initially
 populateFilters();
+
+// Generate charts with no-values on page reload
+populateFilters().then(() => {
+  fetchBarChartData({});
+  fetchLineChartData({});
+  fetchPieChart({});
+});
