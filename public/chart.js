@@ -1,10 +1,10 @@
 let chartInstance = null;
 
-// Average Intensity per Topic - Bar Chart
+// Average Intensity Per Topic - Bar Chart
 async function fetchBarChartData(filters = {}) {
   try {
     const queryParams = new URLSearchParams(filters).toString();
-    const response = await fetch(`/data?${queryParams}`);
+    const response = await fetch(`/bar-data?${queryParams}`);
     const data = await response.json();
 
     if (data.length === 0) {
@@ -12,13 +12,11 @@ async function fetchBarChartData(filters = {}) {
       return;
     }
 
-    // Process and extract the data for visualization
     const labels = data.map((item) => item.sector || "Unknown");
     const values = data.map((item) => item.averageIntensity || 0);
 
-    const ctx = document.getElementById("myChart").getContext("2d");
+    const ctx = document.getElementById("barChart").getContext("2d");
 
-    // Clear the previous chart instance if it exists
     if (chartInstance) {
       chartInstance.destroy();
     }
@@ -50,7 +48,7 @@ async function fetchBarChartData(filters = {}) {
   }
 }
 
-// Intensity/Likelihood/Relevance over Years - Line Chart
+// Intensity-Likelihood-Relevance - Line Chart
 async function fetchLineChartData(filters = {}) {
   try {
     const queryParams = new URLSearchParams(filters).toString();
@@ -64,12 +62,10 @@ async function fetchLineChartData(filters = {}) {
 
     const ctx = document.getElementById("lineChart").getContext("2d");
 
-    // Clear the previous chart instance if it exists
     if (chartInstance) {
       chartInstance.destroy();
     }
 
-    // Create the line chart
     chartInstance = new Chart(ctx, {
       type: "line",
       data: {
@@ -132,11 +128,11 @@ async function fetchLineChartData(filters = {}) {
   }
 }
 
-// Fetch and display Sector-Topic pie chart
+// Region-wise Sector/Topic Distribution - Pie chart
 async function fetchPieChart(filters = {}) {
   try {
     const queryParams = new URLSearchParams(filters).toString();
-    const response = await fetch(`/sector-topic-data?${queryParams}`);
+    const response = await fetch(`/pie-data?${queryParams}`);
     const data = await response.json();
 
     if (data.length === 0) {
@@ -195,6 +191,7 @@ async function fetchPieChart(filters = {}) {
   }
 }
 
+// Populate dropdowns and handle region-based country filtering
 async function populateFilters() {
   try {
     const response = await fetch("/filters");
@@ -205,28 +202,26 @@ async function populateFilters() {
       return;
     }
 
-    populateSelect("endYearFilter", filters.endYear);
-    populateSelect("startYearFilter", filters.startYear);
-    populateSelect("topicFilter", filters.topic);
+    populateSelect("endYearFilterBar", filters.endYear);
+    populateSelect("startYearFilterBar", filters.startYear);
+    populateSelect("endYearFilterLine", filters.endYear);
+    populateSelect("startYearFilterLine", filters.startYear);
     populateSelect("regionFilter", filters.region);
+    populateSelect("regionFilterPie", filters.region);
     populateSelect("countryFilter", filters.country);
-    populateSelect("sectorFilter", filters.sector);
 
+    // Automatically populate the country dropdown whenever the region changes
     document
       .getElementById("regionFilter")
       .addEventListener("change", async function () {
-        const selectedRegion = this.value;
-        if (selectedRegion) {
-          await populateCountryDropdown(selectedRegion);
-        } else {
-          populateSelect("countryFilter", []);
-        }
+        await populateCountryDropdown(this.value);
       });
   } catch (error) {
     console.error("Failed to fetch filter options:", error);
   }
 }
 
+// Fetch and populate country dropdown based on selected region
 async function populateCountryDropdown(region) {
   try {
     const response = await fetch(`/countries?region=${region}`);
@@ -237,9 +232,10 @@ async function populateCountryDropdown(region) {
   }
 }
 
+// Populate dropdowns with list of options
 function populateSelect(id, options) {
   const selectElement = document.getElementById(id);
-  selectElement.innerHTML = '<option value="">Select</option>'; // Reset to default option
+  selectElement.innerHTML = '<option value="">Select</option>';
   options.forEach((option) => {
     const optionElement = document.createElement("option");
     optionElement.value = option;
@@ -248,6 +244,7 @@ function populateSelect(id, options) {
   });
 }
 
+// Validate that the start year is not greater than the end year
 function validateYearRange(startYear, endYear) {
   if (startYear && endYear && parseInt(startYear, 10) > parseInt(endYear, 10)) {
     alert(
@@ -258,10 +255,12 @@ function validateYearRange(startYear, endYear) {
   return true;
 }
 
-// Add event listener to the button to generate the bar chart
-document.getElementById("generateChart").addEventListener("click", () => {
-  const startYear = document.getElementById("startYearFilter").value;
-  const endYear = document.getElementById("endYearFilter").value;
+// Event listener for Bar chart
+document.getElementById("generateBarChart").addEventListener("click", () => {
+  const startYear = document.getElementById("startYearFilterBar").value;
+  const endYear = document.getElementById("endYearFilterBar").value;
+  const region = document.getElementById("regionFilter").value;
+  const country = document.getElementById("countryFilter").value;
 
   if (!validateYearRange(startYear, endYear)) {
     return;
@@ -270,17 +269,16 @@ document.getElementById("generateChart").addEventListener("click", () => {
   const filters = {
     startYear,
     endYear,
-    topic: document.getElementById("topicFilter").value,
-    region: document.getElementById("regionFilter").value,
-    country: document.getElementById("countryFilter").value,
+    region,
+    country,
   };
   fetchBarChartData(filters);
 });
 
-// Add event listener to the button to generate the line chart
+// Event listener for Line chart
 document.getElementById("generateLineChart").addEventListener("click", () => {
-  const startYear = document.getElementById("startYearFilter").value;
-  const endYear = document.getElementById("endYearFilter").value;
+  const startYear = document.getElementById("startYearFilterLine").value;
+  const endYear = document.getElementById("endYearFilterLine").value;
 
   if (!validateYearRange(startYear, endYear)) {
     return;
@@ -289,19 +287,15 @@ document.getElementById("generateLineChart").addEventListener("click", () => {
   const filters = {
     startYear,
     endYear,
-    topic: document.getElementById("topicFilter").value,
-    region: document.getElementById("regionFilter").value,
-    country: document.getElementById("countryFilter").value,
   };
   fetchLineChartData(filters);
 });
 
-// Event listener for pie chart
+// Event listener for Pie chart
 document.getElementById("generatePieChart").addEventListener("click", () => {
-  const region = document.getElementById("regionFilter").value;
+  const region = document.getElementById("regionFilterPie").value;
   const type = document.getElementById("filterType").value;
-  const sector = document.getElementById("sectorFilter").value;
-  fetchPieChart({ region, type, sector });
+  fetchPieChart({ region, type });
 });
 
 // Fetch and populate filters initially

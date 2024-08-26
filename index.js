@@ -36,8 +36,8 @@ app.get("/filters", async (req, res) => {
   }
 });
 
-// API route to get distinct values for filter options
-app.get("/data", async (req, res) => {
+// API route - Average Intensity Per Topic - Bar Chart
+app.get("/bar-data", async (req, res) => {
   try {
     const { startYear, endYear, topic, region, country } = req.query;
 
@@ -80,10 +80,10 @@ app.get("/data", async (req, res) => {
   }
 });
 
-// API route to get year-wise data for Intensity/Likelihood/Relevance over Years - line chart
+// API route - Intensity-Likelihood-Relevance - Line Chart
 app.get("/line-data", async (req, res) => {
   try {
-    const { startYear, endYear, topic, region, country } = req.query;
+    const { startYear, endYear } = req.query;
 
     let matchStage = {};
 
@@ -95,10 +95,6 @@ app.get("/line-data", async (req, res) => {
     } else if (endYear) {
       matchStage.end_year = { $lte: parseInt(endYear, 10) };
     }
-
-    if (topic) matchStage.topic = topic;
-    if (region) matchStage.region = region;
-    if (country) matchStage.country = country;
 
     const metrics = ["intensity", "likelihood", "relevance"];
     const dataPromises = metrics.map((metric) =>
@@ -141,8 +137,8 @@ app.get("/line-data", async (req, res) => {
   }
 });
 
-// API route to get region-wise topic and sector proportion data for pie chart
-app.get("/sector-topic-data", async (req, res) => {
+// API route - Region-wise Sector/Topic Distribution - Pie Chart
+app.get("/pie-data", async (req, res) => {
   try {
     const { sector, region, type } = req.query;
     let matchStage = {};
@@ -182,7 +178,7 @@ app.get("/sector-topic-data", async (req, res) => {
   }
 });
 
-// API route to get countries by region - bar chart
+// API route to get countries by region
 app.get("/countries", async (req, res) => {
   try {
     const { region } = req.query;

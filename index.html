@@ -13,56 +13,81 @@
     <div class="container">
         <h1>Data Visualization Dashboard</h1>
 
-        <!-- Filters -->
-        <div class="row">
-            <div class="filter-group">
-                <label for="startYearFilter">Start Year</label>
-                <select id="startYearFilter" class="form-select"></select>
+        <!-- Bar Chart Section -->
+        <section id="bar-chart-section">
+            <h2>Average Intensity Per Topic</h2>
+            <div class="row">
+                <div class="filter-group">
+                    <label for="startYearFilterBar">Start Year</label>
+                    <select id="startYearFilterBar" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="endYearFilterBar">End Year</label>
+                    <select id="endYearFilterBar" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="regionFilter">Region</label>
+                    <select id="regionFilter" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="countryFilter">Country</label>
+                    <select id="countryFilter" class="form-select"></select>
+                </div>
             </div>
-            <div class="filter-group">
-                <label for="endYearFilter">End Year</label>
-                <select id="endYearFilter" class="form-select"></select>
+            <div>
+                <button id="generateBarChart" class="btn">Generate Bar
+                    Chart</button>
             </div>
-            <div class="filter-group">
-                <label for="sectorFilter">Sector</label>
-                <select id="sectorFilter" class="form-select"></select>
+            <div>
+                <canvas id="barChart"></canvas>
             </div>
-            <div class="filter-group">
-                <label for="topicFilter">Topic</label>
-                <select id="topicFilter" class="form-select"></select>
-            </div>
-            <div class="filter-group">
-                <label for="regionFilter">Region</label>
-                <select id="regionFilter" class="form-select"></select>
-            </div>
-            <div class="filter-group">
-                <label for="countryFilter">Country</label>
-                <select id="countryFilter" class="form-select"></select>
-            </div>
-            <div class="filter-group">
-                <label for="filterType">Select</label>
-                <select id="filterType" class="form-select">
-                    <option value="sector">Sector</option>
-                    <option value="topic">Topic</option>
-                </select>
-            </div>
-        </div>
+        </section>
 
-        <!-- Buttons -->
-        <div>
-            <button id="generateChart" class="btn btn-primary">Generate Average Intensity Per Topic Bar Chart</button>
-            <button id="generateLineChart" class="btn btn-secondary">Generate Intensity/Likelihood/Relevance Line
-                Chart</button>
-            <button id="generatePieChart" class="btn btn-secondary">Generate Region-wise Sector/Topic Distribution Pie
-                Chart</button>
-        </div>
+        <!-- Line Chart Section -->
+        <section id="line-chart-section">
+            <h2>Intensity-Likelihood-Relevance</h2>
+            <div class="row">
+                <div class="filter-group">
+                    <label for="startYearFilterLine">Start Year</label>
+                    <select id="startYearFilterLine" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="endYearFilterLine">End Year</label>
+                    <select id="endYearFilterLine" class="form-select"></select>
+                </div>
+            </div>
+            <div>
+                <button id="generateLineChart" class="btn">Generate Line
+                    Chart</button>
+            </div>
+            <div>
+                <canvas id="lineChart"></canvas>
+            </div>
+        </section>
 
-        <!-- Charts -->
-        <div>
-            <canvas id="myChart"></canvas>
-            <canvas id="lineChart"></canvas>
-            <canvas id="pieChart"></canvas>
-        </div>
+        <!-- Pie Chart Section -->
+        <section id="pie-chart-section">
+            <h2>Region-wise Sector/Topic Distribution</h2>
+            <div class="row">
+                <div class="filter-group">
+                    <label for="regionFilterPie">Region</label>
+                    <select id="regionFilterPie" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterType">Select</label>
+                    <select id="filterType" class="form-select">
+                        <option value="sector">Sector</option>
+                        <option value="topic">Topic</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button id="generatePieChart" class="btn">Generate Pie Chart</button>
+            </div>
+            <div>
+                <canvas id="pieChart"></canvas>
+            </div>
+        </section>
     </div>
 
     <!-- Bootstrap JS and dependencies -->
