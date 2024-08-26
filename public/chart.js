@@ -2,8 +2,11 @@ let barChartInstance = null;
 let lineChartInstance = null;
 let pieChartInstance = null;
 
+let startYear = null;
+let endYear = null;
+
 // Average Intensity Per Topic - Bar Chart
-async function fetchBarChartData(filters = {}) {
+async function fetchBarChart(filters = {}) {
   try {
     const queryParams = new URLSearchParams(filters).toString();
     const response = await fetch(`/bar-data?${queryParams}`);
@@ -51,7 +54,7 @@ async function fetchBarChartData(filters = {}) {
 }
 
 // Intensity-Likelihood-Relevance - Line Chart
-async function fetchLineChartData(filters = {}) {
+async function fetchLineChart(filters = {}) {
   try {
     const queryParams = new URLSearchParams(filters).toString();
     const response = await fetch(`/line-data?${queryParams}`);
@@ -212,12 +215,30 @@ async function populateFilters() {
     populateSelect("regionFilterPie", filters.region);
     populateSelect("countryFilter", filters.country);
 
-    // Automatically populate the country dropdown whenever the region changes
-    document
-      .getElementById("regionFilter")
-      .addEventListener("change", async function () {
-        await populateCountryDropdown(this.value);
-      });
+    const startYearNumbers = filters.startYear
+      .map((year) => parseInt(year, 10))
+      .filter((num) => !isNaN(num));
+    const endYearNumbers = filters.endYear
+      .map((year) => parseInt(year, 10))
+      .filter((num) => !isNaN(num));
+
+    startYear = startYearNumbers.length ? Math.min(...startYearNumbers) : null;
+    endYear = endYearNumbers.length ? Math.max(...endYearNumbers) : null;
+
+    if (startYear !== null) {
+      document.getElementById("startYearFilterBar").value = startYear;
+      document.getElementById("startYearFilterLine").value = startYear;
+    }
+    if (endYear !== null) {
+      document.getElementById("endYearFilterBar").value = endYear;
+      document.getElementById("endYearFilterLine").value = endYear;
+    }
+
+    // document
+    //   .getElementById("regionFilter")
+    //   .addEventListener("change", async function () {
+    //     await populateCountryDropdown(this.value);
+    //   });
   } catch (error) {
     console.error("Failed to fetch filter options:", error);
   }
@@ -259,8 +280,11 @@ function validateYearRange(startYear, endYear) {
 
 // Event listener for Bar chart
 document.getElementById("generateBarChart").addEventListener("click", () => {
-  const startYear = document.getElementById("startYearFilterBar").value;
-  const endYear = document.getElementById("endYearFilterBar").value;
+  // Use global variables for default values
+  const startYear =
+    document.getElementById("startYearFilterBar").value || window.minStartYear;
+  const endYear =
+    document.getElementById("endYearFilterBar").value || window.maxEndYear;
   const region = document.getElementById("regionFilter").value;
   const country = document.getElementById("countryFilter").value;
 
@@ -274,13 +298,16 @@ document.getElementById("generateBarChart").addEventListener("click", () => {
     region,
     country,
   };
-  fetchBarChartData(filters);
+  fetchBarChart(filters);
 });
 
 // Event listener for Line chart
 document.getElementById("generateLineChart").addEventListener("click", () => {
-  const startYear = document.getElementById("startYearFilterLine").value;
-  const endYear = document.getElementById("endYearFilterLine").value;
+  // Use global variables for default values
+  const startYear =
+    document.getElementById("startYearFilterLine").value || window.minStartYear;
+  const endYear =
+    document.getElementById("endYearFilterLine").value || window.maxEndYear;
 
   if (!validateYearRange(startYear, endYear)) {
     return;
@@ -290,7 +317,7 @@ document.getElementById("generateLineChart").addEventListener("click", () => {
     startYear,
     endYear,
   };
-  fetchLineChartData(filters);
+  fetchLineChart(filters);
 });
 
 // Event listener for Pie chart
@@ -305,7 +332,11 @@ populateFilters();
 
 // Generate charts with no-values on page reload
 populateFilters().then(() => {
-  fetchBarChartData({});
-  fetchLineChartData({});
-  fetchPieChart({});
+  if (startYear !== null && endYear !== null) {
+    fetchBarChart({ startYear, endYear });
+    fetchLineChart({ startYear, endYear });
+  } else {
+    console.error("startYear or endYear is not defined.");
+  }
+  fetchPieChart();
 });
