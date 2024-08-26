@@ -361,8 +361,8 @@ function populateSelect(id, options) {
   selectElement.innerHTML = '<option value="">Select</option>';
   options.forEach((option) => {
     const optionElement = document.createElement("option");
-    optionElement.value = option;
-    optionElement.textContent = option;
+    optionElement.value = option || "Unknown";
+    optionElement.textContent = option || "Unknown";
     selectElement.appendChild(optionElement);
   });
 }
