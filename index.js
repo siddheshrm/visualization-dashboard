@@ -218,8 +218,58 @@ app.get("/pestle-intensity-impact-data", async (req, res) => {
 
     res.json(pestleData);
   } catch (err) {
-    console.error("Error fetching PESTLE intensity, impact, intensity and relevance data:", err);
-    res.status(500).send("Error fetching PESTLE intensity, impact, intensity and relevance data");
+    console.error(
+      "Error fetching PESTLE intensity, impact, intensity and relevance data:",
+      err
+    );
+    res
+      .status(500)
+      .send(
+        "Error fetching PESTLE intensity, impact, intensity and relevance data"
+      );
+  }
+});
+
+// API route - No. of documents by Topic Distribution - Bubble Chart
+app.get("/bubble-data", async (req, res) => {
+  try {
+    const { topic, region, country } = req.query;
+    let matchStage = {};
+
+    if (topic) {
+      matchStage.topic = topic;
+    }
+
+    if (region) {
+      matchStage.region = region;
+    }
+
+    if (country) {
+      matchStage.country = country;
+    }
+
+    const data = await DataModel.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: "$topic",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          topic: "$_id",
+          count: 1,
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching number of documents by Topic Data:", err);
+    res.status(500).send("Error fetching number of documents by Topic Data");
   }
 });
 

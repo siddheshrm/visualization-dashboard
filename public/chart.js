@@ -2,6 +2,7 @@ let barChartInstance = null;
 let lineChartInstance = null;
 let pieChartInstance = null;
 let barPestleChartInstance = null;
+let bubbleChartInstance = null;
 
 let startYear = null;
 let endYear = null;
@@ -287,6 +288,96 @@ async function fetchPestleBarData(filters = {}) {
   }
 }
 
+// No. of documents by Topic - Bubble Chart
+async function fetchBubbleChart(filters = {}) {
+  try {
+    const queryParams = new URLSearchParams(filters).toString();
+    const response = await fetch(`/bubble-data?${queryParams}`);
+    const data = await response.json();
+
+    if (data.length === 0) {
+      alert("No data available for the selected filters.");
+      return;
+    }
+
+    // Create labels and map data
+    const labels = data.map((item) => item.topic);
+    const bubbleData = data.map((item) => ({
+      x: labels.indexOf(item.topic),
+      y: item.count,
+      r: Math.sqrt(item.count) * 2,
+      label: item.topic,
+    }));
+
+    const ctx = document.getElementById("bubbleChart").getContext("2d");
+
+    if (bubbleChartInstance) {
+      bubbleChartInstance.destroy();
+    }
+
+    bubbleChartInstance = new Chart(ctx, {
+      type: "bubble",
+      data: {
+        datasets: [
+          {
+            label: "No. of Documents by Topic",
+            data: bubbleData,
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const label = context.raw.label || "Unknown";
+                return `${label}: ${context.raw.y} documents`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Topic" },
+            ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              minRotation: 0,
+              stepSize: 1,
+              callback: function (value, index) {
+                const label = labels[index] || "Unknown";
+                return label.length > 10 ? `${label.slice(0, 10)}...` : label;
+              },
+            },
+            grid: { display: false },
+          },
+          y: {
+            title: { display: true, text: "No. of Documents" },
+            beginAtZero: true,
+          },
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 30,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+}
+
 // Populate dropdowns and handle region-based country filtering
 async function populateFilters() {
   try {
@@ -307,6 +398,9 @@ async function populateFilters() {
     populateSelect("countryFilter", filters.country);
     populateSelect("regionFilterPestle", filters.region);
     populateSelect("countryFilterPestle", filters.country);
+    populateSelect("topicFilterBubble", filters.topic);
+    populateSelect("regionFilterBubble", filters.region);
+    populateSelect("countryFilterBubble", filters.country);
 
     const startYearNumbers = filters.startYear
       .map((year) => parseInt(year, 10))
@@ -338,6 +432,12 @@ async function populateFilters() {
       .addEventListener("change", async function () {
         await populateCountryDropdown(this.value);
       });
+
+    document
+      .getElementById("regionFilterBubble")
+      .addEventListener("change", async function () {
+        await populateCountryDropdown(this.value);
+      });
   } catch (error) {
     console.error("Failed to fetch filter options:", error);
   }
@@ -350,6 +450,7 @@ async function populateCountryDropdown(region) {
     const countries = await response.json();
     populateSelect("countryFilter", countries);
     populateSelect("countryFilterPestle", countries);
+    populateSelect("countryFilterBubble", countries);
   } catch {
     alert("Failed to fetch countries");
   }
@@ -438,6 +539,16 @@ document
     fetchPestleBarData(filters);
   });
 
+// Event listener for Bubble chart
+document.getElementById("generateBubbleChart").addEventListener("click", () => {
+  const filters = {
+    topic: document.getElementById("topicFilterBubble").value,
+    region: document.getElementById("regionFilterBubble").value,
+    country: document.getElementById("countryFilterBubble").value,
+  };
+  fetchBubbleChart(filters);
+});
+
 // Fetch and populate filters initially
 populateFilters();
 
@@ -451,4 +562,5 @@ populateFilters().then(() => {
   }
   fetchPieChart();
   fetchPestleBarData();
+  fetchBubbleChart();
 });
