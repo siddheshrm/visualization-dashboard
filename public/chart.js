@@ -3,6 +3,7 @@ let lineChartInstance = null;
 let pieChartInstance = null;
 let barPestleChartInstance = null;
 let bubbleChartInstance = null;
+let heatmapInstance = null;
 
 let startYear = null;
 let endYear = null;
@@ -378,6 +379,116 @@ async function fetchBubbleChart(filters = {}) {
   }
 }
 
+// PESTLE and Source by Region - Heatmap
+async function fetchHeatmap(filters = {}) {
+  try {
+    const queryParams = new URLSearchParams(filters).toString();
+    const response = await fetch(`/heatmap-data?${queryParams}`);
+    const data = await response.json();
+
+    if (data.length === 0) {
+      alert("No heatmap data available for the selected filters.");
+      return;
+    }
+
+    const pestles = [...new Set(data.map((item) => item.pestle))];
+    const sources = [
+      ...new Set(data.flatMap((item) => item.sources.map((s) => s.source))),
+    ];
+
+    // Prepare the heatmap data
+    const heatmapData = pestles.map((pestle) => {
+      const row = sources.map((source) => {
+        const item = data.find(
+          (d) =>
+            (d.pestle || "Unknown") === pestle &&
+            d.sources.some((s) => (s.source || "Unknown") === source)
+        );
+        return item
+          ? item.sources.find((s) => (s.source || "Unknown") === source)
+              ?.count || 0
+          : 0;
+      });
+      return row;
+    });
+
+    const ctx = document.getElementById("heatMap").getContext("2d");
+
+    if (heatmapInstance) {
+      heatmapInstance.destroy();
+    }
+
+    heatmapInstance = new Chart(ctx, {
+      type: "matrix",
+      data: {
+        datasets: [
+          {
+            label: "PESTLE and Source by Region",
+            data: heatmapData.flat().map((value, index) => ({
+              x: index % sources.length,
+              y: Math.floor(index / sources.length),
+              v: value,
+            })),
+            backgroundColor: (context) => {
+              const value = context.raw.v;
+              const alpha = value / 100;
+              return `rgba(255, 0, 0, ${alpha})`;
+            },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return `Count: ${context.raw.v}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: "Source" },
+            ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              minRotation: 0,
+              stepSize: 5,
+              callback: function (value, index) {
+                const label = sources[index] || "Unknown";
+                return label.length > 10 ? `${label.slice(0, 10)}...` : label;
+              },
+            },
+          },
+          y: {
+            title: { display: true, text: "PESTLE" },
+            ticks: {
+              callback: function (value, index) {
+                return pestles[index] || "Unknown";
+              },
+            },
+          },
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 30,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch heatmap data:", error);
+  }
+}
+
 // Populate dropdowns and handle region-based country filtering
 async function populateFilters() {
   try {
@@ -389,6 +500,7 @@ async function populateFilters() {
       return;
     }
 
+    // Populate the dropdowns
     populateSelect("endYearFilterBar", filters.endYear);
     populateSelect("startYearFilterBar", filters.startYear);
     populateSelect("endYearFilterLine", filters.endYear);
@@ -401,7 +513,11 @@ async function populateFilters() {
     populateSelect("topicFilterBubble", filters.topic);
     populateSelect("regionFilterBubble", filters.region);
     populateSelect("countryFilterBubble", filters.country);
+    populateSelect("countryFilterHeat", filters.country);
+    populateSelect("regionFilterHeat", filters.region);
+    populateSelect("sourceFilterHeat", filters.source);
 
+    // Extract year numbers and set the min and max values
     const startYearNumbers = filters.startYear
       .map((year) => parseInt(year, 10))
       .filter((num) => !isNaN(num));
@@ -438,6 +554,12 @@ async function populateFilters() {
       .addEventListener("change", async function () {
         await populateCountryDropdown(this.value);
       });
+
+    document
+      .getElementById("regionFilterHeat")
+      .addEventListener("change", async function () {
+        await populateCountryDropdown(this.value);
+      });
   } catch (error) {
     console.error("Failed to fetch filter options:", error);
   }
@@ -451,6 +573,7 @@ async function populateCountryDropdown(region) {
     populateSelect("countryFilter", countries);
     populateSelect("countryFilterPestle", countries);
     populateSelect("countryFilterBubble", countries);
+    populateSelect("countryFilterHeat", countries);
   } catch {
     alert("Failed to fetch countries");
   }
@@ -549,6 +672,21 @@ document.getElementById("generateBubbleChart").addEventListener("click", () => {
   fetchBubbleChart(filters);
 });
 
+// Event listener for Heatmap
+document.getElementById("generateHeatmap").addEventListener("click", () => {
+  const region = document.getElementById("regionFilterHeat").value;
+  const country = document.getElementById("countryFilterHeat").value;
+  const source = document.getElementById("sourceFilterHeat").value;
+
+  const filters = {
+    region,
+    country,
+    source,
+  };
+
+  fetchHeatmap(filters);
+});
+
 // Fetch and populate filters initially
 populateFilters();
 
@@ -563,4 +701,5 @@ populateFilters().then(() => {
   fetchPieChart();
   fetchPestleBarData();
   fetchBubbleChart();
+  fetchHeatmap();
 });

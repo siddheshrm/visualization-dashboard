@@ -136,6 +136,31 @@
                 <canvas id="bubbleChart"></canvas>
             </div>
         </section>
+
+        <!-- Heat Map Section -->
+        <section id="heat-map-section">
+            <h2>PESTLE and Source by Region</h2>
+            <div class="row">
+                <div class="filter-group">
+                    <label for="regionFilterHeat">Region</label>
+                    <select id="regionFilterHeat" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="countryFilterHeat">Country</label>
+                    <select id="countryFilterHeat" class="form-select"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="sourceFilterHeat">Source</label>
+                    <select id="sourceFilterHeat" class="form-select"></select>
+                </div>
+            </div>
+            <div>
+                <button id="generateHeatmap" class="btn">Generate Heatmap</button>
+            </div>
+            <div>
+                <canvas id="heatMap"></canvas>
+            </div>
+        </section>
     </div>
 
     <!-- Bootstrap JS and dependencies -->
@@ -144,7 +169,10 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
 
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.0.1/dist/chartjs-chart-matrix.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-heatmap@0.3.0/dist/chartjs-chart-heatmap.min.js"></script>
+
     <script src="chart.js"></script>
 </body>
 

@@ -28,6 +28,7 @@ app.get("/filters", async (req, res) => {
     filters.intensity = await DataModel.distinct("intensity");
     filters.likelihood = await DataModel.distinct("likelihood");
     filters.relevance = await DataModel.distinct("relevance");
+    filters.source = await DataModel.distinct("source");
 
     res.json(filters);
   } catch {
@@ -270,6 +271,61 @@ app.get("/bubble-data", async (req, res) => {
   } catch (err) {
     console.error("Error fetching number of documents by Topic Data:", err);
     res.status(500).send("Error fetching number of documents by Topic Data");
+  }
+});
+
+// API route - PESTLE and Source by Region
+app.get("/heatmap-data", async (req, res) => {
+  try {
+    const { region, country, source } = req.query;
+    let matchStage = {};
+
+    if (region) {
+      matchStage.region = region;
+    }
+
+    if (country) {
+      matchStage.country = country;
+    }
+
+    if (source) {
+      matchStage.source = source;
+    }
+
+    const heatmapData = await DataModel.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: {
+            region: "$region",
+            source: { $ifNull: ["$source", "Unknown"] },
+            pestle: { $ifNull: ["$pestle", "Unknown"] },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: { region: "$_id.region", pestle: "$_id.pestle" },
+          sources: {
+            $push: { source: "$_id.source", count: "$count" },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          region: "$_id.region",
+          pestle: "$_id.pestle",
+          sources: 1,
+        },
+      },
+    ]);
+
+    res.json(heatmapData);
+  } catch (err) {
+    console.error("Error fetching heatmap data:", err);
+    res.status(500).send("Error fetching heatmap data");
   }
 });
 
