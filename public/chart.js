@@ -20,6 +20,7 @@ async function fetchBarChart(filters = {}) {
       return;
     }
 
+    // Create labels and map data
     const labels = data.map((item) => item.sector || "Unknown");
     const values = data.map((item) => item.averageIntensity || 0);
 
@@ -83,7 +84,7 @@ async function fetchLineChart(filters = {}) {
             ...data.likelihood.map((item) => item.year),
             ...data.relevance.map((item) => item.year),
           ])
-        ),
+        ).sort((a, b) => a - b),
         datasets: [
           {
             label: "Intensity",
@@ -123,9 +124,15 @@ async function fetchLineChart(filters = {}) {
             title: { display: true, text: "Year" },
             type: "linear",
             position: "bottom",
+            // min: startYear,
+            // max: endYear,
+            ticks: {
+              stepSize: 4,
+              autoSkip: false,
+            },
           },
           y: {
-            title: { display: true, text: "Value" },
+            title: { display: true, text: "Average Values" },
             beginAtZero: true,
           },
         },
@@ -148,6 +155,7 @@ async function fetchPieChart(filters = {}) {
       return;
     }
 
+    // Create labels and map data
     const labels = data.map((item) => item.name || "Unknown");
     const values = data.map((item) => item.count);
 
@@ -203,9 +211,7 @@ async function fetchPieChart(filters = {}) {
 async function fetchPestleBarData(filters = {}) {
   try {
     const queryParams = new URLSearchParams(filters).toString();
-    const response = await fetch(
-      `/pestle-intensity-impact-data?${queryParams}`
-    );
+    const response = await fetch(`/multi-bar-data?${queryParams}`);
     const data = await response.json();
 
     if (data.length === 0) {
@@ -213,6 +219,7 @@ async function fetchPestleBarData(filters = {}) {
       return;
     }
 
+    // Create labels and map data
     const labels = data.map((item) => item.pestle || "Unknown");
     const intensityValues = data.map((item) => item.averageIntensity);
     const impactValues = data.map((item) => item.averageImpact);
@@ -396,7 +403,6 @@ async function fetchHeatmap(filters = {}) {
       ...new Set(data.flatMap((item) => item.sources.map((s) => s.source))),
     ];
 
-    // Prepare the heatmap data
     const heatmapData = pestles.map((pestle) => {
       const row = sources.map((source) => {
         const item = data.find(
@@ -501,18 +507,24 @@ async function populateFilters() {
     }
 
     // Populate the dropdowns
+    // For Bar Chart
     populateSelect("endYearFilterBar", filters.endYear);
     populateSelect("startYearFilterBar", filters.startYear);
+    populateSelect("regionFilterBar", filters.region);
+    populateSelect("countryFilterBar", filters.country);
+    // For Line Chart
     populateSelect("endYearFilterLine", filters.endYear);
     populateSelect("startYearFilterLine", filters.startYear);
-    populateSelect("regionFilter", filters.region);
+    // For Pie Chart
     populateSelect("regionFilterPie", filters.region);
-    populateSelect("countryFilter", filters.country);
-    populateSelect("regionFilterPestle", filters.region);
-    populateSelect("countryFilterPestle", filters.country);
+    // For Multi-bar Chart
+    populateSelect("regionFilterMultibar", filters.region);
+    populateSelect("countryFilterMultibar", filters.country);
+    // For Bubble Chart
     populateSelect("topicFilterBubble", filters.topic);
     populateSelect("regionFilterBubble", filters.region);
     populateSelect("countryFilterBubble", filters.country);
+    // For Heat Map
     populateSelect("countryFilterHeat", filters.country);
     populateSelect("regionFilterHeat", filters.region);
     populateSelect("sourceFilterHeat", filters.source);
@@ -538,13 +550,13 @@ async function populateFilters() {
     }
 
     document
-      .getElementById("regionFilter")
+      .getElementById("regionFilterBar")
       .addEventListener("change", async function () {
         await populateCountryDropdown(this.value);
       });
 
     document
-      .getElementById("regionFilterPestle")
+      .getElementById("regionFilterMultibar")
       .addEventListener("change", async function () {
         await populateCountryDropdown(this.value);
       });
@@ -570,8 +582,8 @@ async function populateCountryDropdown(region) {
   try {
     const response = await fetch(`/countries?region=${region}`);
     const countries = await response.json();
-    populateSelect("countryFilter", countries);
-    populateSelect("countryFilterPestle", countries);
+    populateSelect("countryFilterBar", countries);
+    populateSelect("countryFilterMultibar", countries);
     populateSelect("countryFilterBubble", countries);
     populateSelect("countryFilterHeat", countries);
   } catch {
@@ -602,15 +614,15 @@ function validateYearRange(startYear, endYear) {
   return true;
 }
 
-// Event listener for Bar chart
+// Event listener for Average Intensity by Topic : Bar Chart
 document.getElementById("generateBarChart").addEventListener("click", () => {
   // Use global variables for default values
   const startYear =
     document.getElementById("startYearFilterBar").value || window.minStartYear;
   const endYear =
     document.getElementById("endYearFilterBar").value || window.maxEndYear;
-  const region = document.getElementById("regionFilter").value;
-  const country = document.getElementById("countryFilter").value;
+  const region = document.getElementById("regionFilterBar").value;
+  const country = document.getElementById("countryFilterBar").value;
 
   if (!validateYearRange(startYear, endYear)) {
     return;
@@ -625,7 +637,7 @@ document.getElementById("generateBarChart").addEventListener("click", () => {
   fetchBarChart(filters);
 });
 
-// Event listener for Line chart
+// Event listener for Average Intensity-Likelihood-Relevance : Line Chart
 document.getElementById("generateLineChart").addEventListener("click", () => {
   // Use global variables for default values
   const startYear =
@@ -644,25 +656,25 @@ document.getElementById("generateLineChart").addEventListener("click", () => {
   fetchLineChart(filters);
 });
 
-// Event listener for Pie chart
+// Event listener for Region-wise Sector/Topic Distribution : Pie Chart
 document.getElementById("generatePieChart").addEventListener("click", () => {
   const region = document.getElementById("regionFilterPie").value;
   const type = document.getElementById("filterType").value;
   fetchPieChart({ region, type });
 });
 
-// Event listener for Bar chart - PESTLE
+// Event listener for Average Intensity, Impact, Likelihood, and Relevance by PESTLE : Bar Chart
 document
   .getElementById("generateBarChartPestle")
   .addEventListener("click", () => {
     const filters = {
-      region: document.getElementById("regionFilterPestle").value,
-      country: document.getElementById("countryFilterPestle").value,
+      region: document.getElementById("regionFilterMultibar").value,
+      country: document.getElementById("countryFilterMultibar").value,
     };
     fetchPestleBarData(filters);
   });
 
-// Event listener for Bubble chart
+// Event listener for No. of documents by Topic : Bubble Chart
 document.getElementById("generateBubbleChart").addEventListener("click", () => {
   const filters = {
     topic: document.getElementById("topicFilterBubble").value,
@@ -672,7 +684,7 @@ document.getElementById("generateBubbleChart").addEventListener("click", () => {
   fetchBubbleChart(filters);
 });
 
-// Event listener for Heatmap
+// Event listener for PESTLE and Source by Region : Heat Map
 document.getElementById("generateHeatmap").addEventListener("click", () => {
   const region = document.getElementById("regionFilterHeat").value;
   const country = document.getElementById("countryFilterHeat").value;
@@ -696,6 +708,7 @@ populateFilters().then(() => {
     fetchBarChart({ startYear, endYear });
     fetchLineChart({ startYear, endYear });
   } else {
+    alert("startYear or endYear is not defined.");
     console.error("startYear or endYear is not defined.");
   }
   fetchPieChart();

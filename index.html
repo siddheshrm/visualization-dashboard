@@ -13,7 +13,7 @@
     <div class="container">
         <h1>Data Visualization Dashboard</h1>
 
-        <!-- Bar Chart Section -->
+        <!-- Average Intensity by Topic : Bar Chart Section -->
         <section id="bar-chart-section">
             <h2>Average Intensity by Topic</h2>
             <div class="row">
@@ -26,12 +26,12 @@
                     <select id="endYearFilterBar" class="form-select"></select>
                 </div>
                 <div class="filter-group">
-                    <label for="regionFilter">Region</label>
-                    <select id="regionFilter" class="form-select"></select>
+                    <label for="regionFilterBar">Region</label>
+                    <select id="regionFilterBar" class="form-select"></select>
                 </div>
                 <div class="filter-group">
-                    <label for="countryFilter">Country</label>
-                    <select id="countryFilter" class="form-select"></select>
+                    <label for="countryFilterBar">Country</label>
+                    <select id="countryFilterBar" class="form-select"></select>
                 </div>
             </div>
             <div>
@@ -43,9 +43,9 @@
             </div>
         </section>
 
-        <!-- Line Chart Section -->
+        <!-- Average Intensity-Likelihood-Relevance : Line Chart Section -->
         <section id="line-chart-section">
-            <h2>Intensity-Likelihood-Relevance</h2>
+            <h2>Average Intensity-Likelihood-Relevance</h2>
             <div class="row">
                 <div class="filter-group">
                     <label for="startYearFilterLine">Start Year</label>
@@ -65,7 +65,7 @@
             </div>
         </section>
 
-        <!-- Pie Chart Section -->
+        <!-- Region-wise Sector/Topic Distribution : Pie Chart Section -->
         <section id="pie-chart-section">
             <h2>Region-wise Sector/Topic Distribution</h2>
             <div class="row">
@@ -89,17 +89,17 @@
             </div>
         </section>
 
-        <!-- Bar Chart Section -->
+        <!-- Average Intensity, Impact, Likelihood, and Relevance by PESTLE : Bar Chart Section -->
         <section id="bar-chart-section-pestle">
             <h2>Average Intensity, Impact, Likelihood, and Relevance by PESTLE</h2>
             <div class="row">
                 <div class="filter-group">
-                    <label for="regionFilterPestle">Region</label>
-                    <select id="regionFilterPestle" class="form-select"></select>
+                    <label for="regionFilterMultibar">Region</label>
+                    <select id="regionFilterMultibar" class="form-select"></select>
                 </div>
                 <div class="filter-group">
-                    <label for="countryFilterPestle">Country</label>
-                    <select id="countryFilterPestle" class="form-select"></select>
+                    <label for="countryFilterMultibar">Country</label>
+                    <select id="countryFilterMultibar" class="form-select"></select>
                 </div>
             </div>
             <div>
@@ -111,7 +111,7 @@
             </div>
         </section>
 
-        <!-- Bubble Chart Section -->
+        <!-- No. of documents by Topic : Bubble Chart Section -->
         <section id="bubble-chart-section">
             <h2>No. of documents by Topic</h2>
             <div class="row">
@@ -137,7 +137,7 @@
             </div>
         </section>
 
-        <!-- Heat Map Section -->
+        <!-- PESTLE and Source by Region : Heat Map Section -->
         <section id="heat-map-section">
             <h2>PESTLE and Source by Region</h2>
             <div class="row">
@@ -171,7 +171,6 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.0.1/dist/chartjs-chart-matrix.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-heatmap@0.3.0/dist/chartjs-chart-heatmap.min.js"></script>
 
     <script src="chart.js"></script>
 </body>

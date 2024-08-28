@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-// API route to get data from MongoDB with optional filtering
+// API route to get data from MongoDB with filtering
 app.get("/filters", async (req, res) => {
   try {
     const filters = {};
@@ -44,13 +44,13 @@ app.get("/bar-data", async (req, res) => {
 
     let matchStage = {};
 
-    if (startYear && endYear) {
+    if (startYear) {
       matchStage.start_year = { $gte: parseInt(startYear, 10) };
-      matchStage.end_year = { $lte: parseInt(endYear, 10) };
-    } else if (startYear) {
-      matchStage.start_year = { $gte: parseInt(startYear, 10) };
-    } else if (endYear) {
-      matchStage.end_year = { $lte: parseInt(endYear, 10) };
+    }
+
+    if (endYear) {
+      matchStage.end_year = matchStage.end_year || {};
+      matchStage.end_year.$lte = parseInt(endYear, 10);
     }
 
     if (topic) matchStage.topic = topic;
@@ -76,25 +76,30 @@ app.get("/bar-data", async (req, res) => {
 
     res.json(data);
   } catch (err) {
-    console.error("Error fetching data from MongoDB:", err);
-    res.status(500).send("Error fetching data from MongoDB");
+    console.error(
+      "Error fetching data for Average Intensity Per Topic - Bar Chart:",
+      err
+    );
+    res
+      .status(500)
+      .send("Error fetching data for Average Intensity Per Topic - Bar Chart.");
   }
 });
 
-// API route - Intensity-Likelihood-Relevance - Line Chart
+// API route - Average Intensity-Likelihood-Relevance - Line Chart
 app.get("/line-data", async (req, res) => {
   try {
     const { startYear, endYear } = req.query;
 
     let matchStage = {};
 
-    if (startYear && endYear) {
+    if (startYear) {
       matchStage.start_year = { $gte: parseInt(startYear, 10) };
-      matchStage.end_year = { $lte: parseInt(endYear, 10) };
-    } else if (startYear) {
-      matchStage.start_year = { $gte: parseInt(startYear, 10) };
-    } else if (endYear) {
-      matchStage.end_year = { $lte: parseInt(endYear, 10) };
+    }
+
+    if (endYear) {
+      matchStage.start_year = matchStage.start_year || {};
+      matchStage.start_year.$lte = parseInt(endYear, 10);
     }
 
     const metrics = ["intensity", "likelihood", "relevance"];
@@ -115,7 +120,7 @@ app.get("/line-data", async (req, res) => {
             metric: metric,
           },
         },
-        { $sort: { year: 1 } }, // Sort by year
+        { $sort: { year: 1 } },
       ])
     );
 
@@ -133,8 +138,15 @@ app.get("/line-data", async (req, res) => {
 
     res.json(formattedData);
   } catch (err) {
-    console.error("Error fetching data for line chart:", err);
-    res.status(500).send("Error fetching data for line chart");
+    console.error(
+      "Error fetching data for Average Intensity-Likelihood-Relevance - Line Chart:",
+      err
+    );
+    res
+      .status(500)
+      .send(
+        "Error fetching data for Average Intensity-Likelihood-Relevance - Line Chart."
+      );
   }
 });
 
@@ -174,13 +186,20 @@ app.get("/pie-data", async (req, res) => {
 
     res.json(data);
   } catch (err) {
-    console.error("Error fetching data for pie chart:", err);
-    res.status(500).send("Error fetching data for pie chart");
+    console.error(
+      "Error fetching data for Region-wise Sector/Topic Distribution - Pie Chart:",
+      err
+    );
+    res
+      .status(500)
+      .send(
+        "Error fetching data for Region-wise Sector/Topic Distribution - Pie Chart."
+      );
   }
 });
 
 // API route - Average intensity and impact by PESTLE factor - Bar Chart
-app.get("/pestle-intensity-impact-data", async (req, res) => {
+app.get("/multi-bar-data", async (req, res) => {
   try {
     const { region, country } = req.query;
     let matchStage = {};
@@ -220,13 +239,13 @@ app.get("/pestle-intensity-impact-data", async (req, res) => {
     res.json(pestleData);
   } catch (err) {
     console.error(
-      "Error fetching PESTLE intensity, impact, intensity and relevance data:",
+      "Error fetching data for Average intensity and impact by PESTLE factor - Bar Chart:",
       err
     );
     res
       .status(500)
       .send(
-        "Error fetching PESTLE intensity, impact, intensity and relevance data"
+        "Error fetching data for Average intensity and impact by PESTLE factor - Bar Chart."
       );
   }
 });
@@ -269,8 +288,15 @@ app.get("/bubble-data", async (req, res) => {
 
     res.json(data);
   } catch (err) {
-    console.error("Error fetching number of documents by Topic Data:", err);
-    res.status(500).send("Error fetching number of documents by Topic Data");
+    console.error(
+      "Error fetching data for No. of documents by Topic Distribution - Bubble Chart:",
+      err
+    );
+    res
+      .status(500)
+      .send(
+        "Error fetching data for No. of documents by Topic Distribution - Bubble Chart."
+      );
   }
 });
 
@@ -324,8 +350,10 @@ app.get("/heatmap-data", async (req, res) => {
 
     res.json(heatmapData);
   } catch (err) {
-    console.error("Error fetching heatmap data:", err);
-    res.status(500).send("Error fetching heatmap data");
+    console.error("Error fetching data for PESTLE and Source by Region:", err);
+    res
+      .status(500)
+      .send("Error fetching data for PESTLE and Source by Region.");
   }
 });
 
@@ -340,11 +368,11 @@ app.get("/countries", async (req, res) => {
     const countries = await DataModel.distinct("country", { region });
     res.json(countries);
   } catch {
-    alert("Error fetching countries by region");
-    res.status(500).send("Error fetching countries by region");
+    alert("Error fetching countries by region.");
+    res.status(500).send("Error fetching countries by region.");
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`server running on port ${port}`);
 });
