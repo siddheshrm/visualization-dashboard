@@ -1,7 +1,7 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
+  font-family: "SUSE", sans-serif;
+  background-color: #f5f5f5;
+  color: #000;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -10,6 +10,7 @@ body {
 .container {
   margin: 0 auto;
   padding: 20px;
+  transition: margin-left 0.3s ease;
 }
 
 h1 {
@@ -19,6 +20,7 @@ h1 {
 }
 
 h2 {
+  text-align: center;
   margin-bottom: 20px;
   font-size: 1.5rem;
   color: #444;
@@ -42,7 +44,7 @@ section {
 
 .filter-group {
   flex: 1;
-  min-width: 200px;
+  min-width: 225px;
 }
 
 .filter-group label {
@@ -80,17 +82,22 @@ canvas {
 }
 
 #sidebar {
+  font-family: "Ubuntu", sans-serif;
   position: fixed;
   top: 0;
   left: 0;
   width: 250px;
   height: 100%;
-  background-color: #696969;
+  background-color: #6c757d;
   color: #fff;
   overflow: hidden;
   transition: transform 0.3s ease;
   transform: translateX(-100%);
   padding: 10px;
+}
+
+.container.shrink {
+  margin-left: 270px; /* Adjust based on sidebar width + padding */
 }
 
 #sidebar.active {
@@ -120,13 +127,17 @@ canvas {
 }
 
 #sidebar a {
-  color: #fff;
+  color: #f8f9fa;
   text-decoration: none;
   display: flex;
   align-items: center;
   padding: 10px;
   border-radius: 12px;
 }
+
+/* #sidebar.expanded {
+  width: 500px;
+} */
 
 #sidebar a:hover {
   background-color: #469fff;
@@ -142,8 +153,8 @@ canvas {
 
 #toggle-btn {
   position: fixed;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   background: none;
   border: none;
   color: #333;
@@ -175,7 +186,6 @@ canvas {
 
 .dropdown-toggle .fa-caret-right,
 .dropdown-toggle .fa-caret-down {
-  font-size: 0.75rem;
   margin-left: auto;
 }
 

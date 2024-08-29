@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Visualization Dashboard</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=SUSE:wght@100..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,11 +27,11 @@
                 </a>
                 <ul class="dropdown-menu charts-dropdown">
                     <li><a href="#bar-chart-section">Average Intensity by Topic</a></li>
-                    <li><a href="#line-chart-section">Average Intensity-Likelihood-Relevance</a></li>
-                    <li><a href="#pie-chart-section">Region-wise Sector/Topic Distribution</a></li>
-                    <li><a href="#bar-chart-section-pestle">Average Intensity, Impact, Likelihood, and Relevance by
-                            PESTLE</a></li>
-                    <li><a href="#bubble-chart-section">No. of documents by Topic</a></li>
+                    <li><a href="#line-chart-section">Average Intensity-Likelihood-Relevance over Time</a></li>
+                    <li><a href="#pie-chart-section">Region-wise Sector and Topic Distribution</a></li>
+                    <li><a href="#bar-chart-section-pestle">Average Intensity, Impact, Likelihood and Relevance by
+                            PESTLE Factor</a></li>
+                    <li><a href="#bubble-chart-section">Number of documents by Topic</a></li>
                     <li><a href="#heat-map-section">PESTLE and Source by Region</a></li>
                 </ul>
             </li>
@@ -79,7 +84,7 @@
 
         <!-- Average Intensity-Likelihood-Relevance : Line Chart Section -->
         <section id="line-chart-section">
-            <h2>Average Intensity-Likelihood-Relevance</h2>
+            <h2>Average Intensity-Likelihood-Relevance over Time</h2>
             <div class="row">
                 <div class="filter-group">
                     <label for="startYearFilterLine">Start Year</label>
@@ -101,7 +106,7 @@
 
         <!-- Region-wise Sector/Topic Distribution : Pie Chart Section -->
         <section id="pie-chart-section">
-            <h2>Region-wise Sector/Topic Distribution</h2>
+            <h2>Region-wise Sector and Topic Distribution</h2>
             <div class="row">
                 <div class="filter-group">
                     <label for="regionFilterPie">Region</label>
@@ -125,7 +130,7 @@
 
         <!-- Average Intensity, Impact, Likelihood, and Relevance by PESTLE : Bar Chart Section -->
         <section id="bar-chart-section-pestle">
-            <h2>Average Intensity, Impact, Likelihood, and Relevance by PESTLE</h2>
+            <h2>Average Intensity, Impact, Likelihood and Relevance by PESTLE Factor</h2>
             <div class="row">
                 <div class="filter-group">
                     <label for="regionFilterMultibar">Region</label>
@@ -147,7 +152,7 @@
 
         <!-- No. of documents by Topic : Bubble Chart Section -->
         <section id="bubble-chart-section">
-            <h2>No. of documents by Topic</h2>
+            <h2>Number of documents by Topic</h2>
             <div class="row">
                 <div class="filter-group">
                     <label for="regionFilterBubble">Region</label>
@@ -210,49 +215,7 @@
     <script src="https://kit.fontawesome.com/9dd0cb4077.js" crossorigin="anonymous"></script>
 
     <script src="chart.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const toggleBtn = document.getElementById('toggle-btn');
-            const sidebar = document.getElementById('sidebar');
-            const icon = toggleBtn.querySelector('i');
-
-            toggleBtn.addEventListener('click', function () {
-                sidebar.classList.toggle('active');
-                this.classList.toggle('active');
-
-                if (sidebar.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-xmark');
-                } else {
-                    icon.classList.remove('fa-xmark');
-                    icon.classList.add('fa-bars');
-                }
-            });
-
-            // Dropdown toggle
-            document.querySelectorAll('.dropdown-toggle').forEach(function (toggle) {
-                toggle.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const dropdownMenu = this.nextElementSibling;
-                    const caretIcon = this.querySelector('.fa-caret-right, .fa-caret-down');
-
-                    dropdownMenu.classList.toggle('show');
-                    this.classList.toggle('active');
-
-                    if (dropdownMenu.classList.contains('show')) {
-                        caretIcon.classList.remove('fa-caret-right');
-                        caretIcon.classList.add('fa-caret-down');
-                        sidebar.classList.add('expanded'); width
-                    } else {
-                        caretIcon.classList.remove('fa-caret-down');
-                        caretIcon.classList.add('fa-caret-right');
-                        sidebar.classList.remove('expanded');
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
