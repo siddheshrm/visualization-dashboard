@@ -1,63 +1,31 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const toggleBtn = document.getElementById("toggle-btn");
-  const sidebar = document.getElementById("sidebar");
-  const container = document.querySelector(".container");
-  const icon = toggleBtn.querySelector("i");
+document.addEventListener("DOMContentLoaded", function () {
+  const dropdownLinks = document.querySelectorAll(".dropdown-toggle");
 
-  toggleBtn.addEventListener("click", function () {
-    sidebar.classList.toggle("active");
-    this.classList.toggle("active");
+  dropdownLinks.forEach((link) => {
+    link.addEventListener("click", function () {
+      // Get the target dropdown id
+      const targetId = this.getAttribute("data-bs-target");
+      const targetDropdown = document.querySelector(targetId);
 
-    if (sidebar.classList.contains("active")) {
-      icon.classList.remove("fa-bars");
-      icon.classList.add("fa-xmark");
-      if (container) {
-        container.classList.add("shrink");
-      }
-    } else {
-      icon.classList.remove("fa-xmark");
-      icon.classList.add("fa-bars");
-      if (container) {
-        container.classList.remove("shrink");
-      }
-      resetSidebar();
-    }
-  });
+      // Check if any dropdown is already expanded
+      dropdownLinks.forEach((otherLink) => {
+        if (otherLink !== this) {
+          const otherTargetId = otherLink.getAttribute("data-bs-target");
+          const otherDropdown = document.querySelector(otherTargetId);
 
-  function resetSidebar() {
-    document.querySelectorAll(".dropdown-menu").forEach(function (menu) {
-      menu.classList.remove("show");
-    });
+          if (otherDropdown && otherDropdown.classList.contains("show")) {
+            // Collapse the other dropdown
+            new bootstrap.Collapse(otherDropdown, {
+              toggle: false,
+            }).hide();
+          }
+        }
+      });
 
-    document.querySelectorAll(".dropdown-toggle").forEach(function (toggle) {
-      toggle.classList.remove("active");
-      const caretIcon = toggle.querySelector(".fa-caret-right, .fa-caret-down");
-      caretIcon.classList.remove("fa-caret-down");
-      caretIcon.classList.add("fa-caret-right");
-    });
-  }
-
-  // sidebar.classList.remove('expanded');       // Enable when corresponding CSS style is enabled
-
-  // Dropdown toggle
-  document.querySelectorAll(".dropdown-toggle").forEach(function (toggle) {
-    toggle.addEventListener("click", function (event) {
-      event.preventDefault();
-      const dropdownMenu = this.nextElementSibling;
-      const caretIcon = this.querySelector(".fa-caret-right, .fa-caret-down");
-
-      dropdownMenu.classList.toggle("show");
-      this.classList.toggle("active");
-
-      if (dropdownMenu.classList.contains("show")) {
-        caretIcon.classList.remove("fa-caret-right");
-        caretIcon.classList.add("fa-caret-down");
-        sidebar.classList.add("expanded");
-      } else {
-        caretIcon.classList.remove("fa-caret-down");
-        caretIcon.classList.add("fa-caret-right");
-        sidebar.classList.remove("expanded");
-      }
+      // Toggle the current dropdown
+      const currentCollapse = new bootstrap.Collapse(targetDropdown, {
+        toggle: true,
+      });
     });
   });
 });

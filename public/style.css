@@ -14,15 +14,18 @@ body {
 }
 
 h1 {
+  font-family: "Nerko One", cursive;
   text-align: center;
-  font-size: 2rem;
-  color: #333;
+  font-size: 2.5rem;
+  color: #000;
+  padding-bottom: 20px;
 }
 
 h2 {
+  font-family: "Nerko One", cursive;
   text-align: center;
   margin-bottom: 20px;
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: #444;
   border-bottom: 2px solid #ddd;
   padding-bottom: 10px;
@@ -81,126 +84,37 @@ canvas {
   max-height: 400px;
 }
 
-#sidebar {
-  font-family: "Ubuntu", sans-serif;
+/* Offcanvas Trigger Icon Style */
+#sidebarToggle {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 250px;
-  height: 100%;
-  background-color: #6c757d;
-  color: #fff;
-  overflow: hidden;
-  transition: transform 0.3s ease;
-  transform: translateX(-100%);
-  padding: 10px;
-}
-
-.container.shrink {
-  margin-left: 270px; /* Adjust based on sidebar width + padding */
-}
-
-#sidebar.active {
-  transform: translateX(0);
-}
-
-#sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#sidebar ul > li:first-child {
-  padding-top: 50px;
-}
-
-#sidebar ul > li > ul {
-  padding-left: 25px;
-}
-
-#sidebar ul > li > ul > li:first-child {
-  padding-top: 0;
-}
-
-#sidebar ul > li > ul > li {
-  font-size: 0.95rem;
-}
-
-#sidebar a {
-  color: #f8f9fa;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-radius: 12px;
-}
-
-/* #sidebar.expanded {
-  width: 500px;
-} */
-
-#sidebar a:hover {
-  background-color: #469fff;
-}
-
-.dropdown-menu {
-  display: none;
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-#toggle-btn {
-  position: fixed;
-  top: 8px;
-  left: 8px;
-  background: none;
-  border: none;
-  color: #333;
+  top: 10px;
+  left: 10px;
+  font-size: 1.5rem;
   cursor: pointer;
-  z-index: 1000;
-  transition: color 0.3s ease, left 0.3s ease;
 }
 
-#toggle-btn.active {
-  color: #fff;
-}
-
-#toggle-btn i {
-  font-size: 1.25rem;
-}
-
-.dropdown-toggle {
+/* Offcanvas Body Links Style */
+.offcanvas-body a {
   display: flex;
   align-items: center;
-  font-size: 1rem;
+  padding: 8px 16px;
+  color: #333;
   text-decoration: none;
-  color: #fff;
+  font-size: 1rem;
 }
 
-.dropdown-toggle i {
-  font-size: 1.25rem;
-  margin-right: 10px;
+.offcanvas-body a i {
+  font-size: 1rem;
+  margin-right: 12px;
 }
 
-.dropdown-toggle .fa-caret-right,
-.dropdown-toggle .fa-caret-down {
-  margin-left: auto;
+/* Dropdown Indicator Spacing */
+.offcanvas-body a .dropdown-toggle::after {
+  margin-left: 12px;
 }
 
-.dropdown-toggle .fa-caret-down {
-  display: none;
-}
-
-.dropdown-toggle.active .fa-caret-right {
-  display: none;
-}
-
-.dropdown-toggle.active .fa-caret-down {
-  display: inline;
-}
-
-.fa-solid {
-  padding: 10px;
+/* Hover Effect */
+.offcanvas-body a:hover {
+  background-color: #f8f9fa;
+  color: #007bff;
 }
