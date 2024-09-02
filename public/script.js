@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   const dropdownLinks = document.querySelectorAll(".dropdown-toggle");
+  const sidebarOffcanvas = document.getElementById("sidebarOffcanvas");
 
   dropdownLinks.forEach((link) => {
     link.addEventListener("click", function () {
@@ -26,6 +27,20 @@ document.addEventListener("DOMContentLoaded", function () {
       const currentCollapse = new bootstrap.Collapse(targetDropdown, {
         toggle: true,
       });
+    });
+  });
+
+  // Reset dropdowns when the offcanvas sidebar is hidden
+  sidebarOffcanvas.addEventListener("hidden.bs.offcanvas", function () {
+    dropdownLinks.forEach((link) => {
+      const targetId = link.getAttribute("data-bs-target");
+      const targetDropdown = document.querySelector(targetId);
+
+      if (targetDropdown && targetDropdown.classList.contains("show")) {
+        new bootstrap.Collapse(targetDropdown, {
+          toggle: false,
+        }).hide();
+      }
     });
   });
 });
