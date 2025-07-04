@@ -20,4 +20,4 @@ This project is a data visualization dashboard that uses Chart.js to create inte
 
 ### About me
 
-You can learn more about me and explore my other projects on my [personal portfolio website](https://siddheshmestri.online).
+You can learn more about me and explore my other projects on my [personal portfolio website](https://siddheshmestri.in).
